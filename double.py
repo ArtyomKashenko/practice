@@ -12,15 +12,15 @@ import binascii
 
 
 # СЧИТЫВАЕМ СПИСОК ПРЕДЛОГОВ И СОЮЗОВ
-forbidden_words = '/test_docs/stoplist.txt'
+forbidden_words = 'test_docs/stoplist.txt'
 forbid = open(forbidden_words,'r')
 stoplist = [line.strip().decode('utf-8') for line in forbid.readlines()]
 forbid.close()
 
 
 # ДОКУМЕНТЫ ДЛЯ ПРОВЕРКИ
-file_1 = '/test_docs/source1.txt'
-file_2 = '/test_docs/source2.txt'
+file_1 = 'test_docs/source_1.txt'
+file_2 = 'test_docs/source_2.txt'
 text_1 = open(file_1,'r')
 text_2 = open(file_2,'r')
 lines_1 = text_1.readlines()
@@ -79,6 +79,6 @@ def percent(array1, array2):
 lines_1 = normalize_text(lines_1)
 lines_2 = normalize_text(lines_2)
 
-# print(lines_1)
-# print(lines_2)
+print ' '.join([w for w in lines_1])
+print ' '.join([w for w in lines_2])
 print percent(algo_shingle(lines_1), algo_shingle(lines_2))
