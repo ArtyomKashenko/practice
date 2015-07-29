@@ -12,15 +12,15 @@ import binascii
 
 
 # СЧИТЫВАЕМ СПИСОК ПРЕДЛОГОВ И СОЮЗОВ
-forbidden_words = '/test_docs/stoplist.txt'
+forbidden_words = 'test_docs/stoplist.txt'
 forbid = open(forbidden_words,'r')
 stoplist = [line.strip().decode('utf-8') for line in forbid.readlines()]
 forbid.close()
 
 
 # ДОКУМЕНТЫ ДЛЯ ПРОВЕРКИ
-file_1 = '/test_docs/source1.txt'
-file_2 = '/test_docs/source2.txt'
+file_1 = 'test_docs/source_1.txt'
+file_2 = 'test_docs/source_2.txt'
 text_1 = open(file_1,'r')
 text_2 = open(file_2,'r')
 lines_1 = text_1.readlines()
@@ -44,7 +44,7 @@ def normalize_text(text):
 	tokenized_lines = map(tokenizer.tokenize, [line.decode('utf-8').strip() for line in text])
 	for tokenized_line in tokenized_lines: 
 		for token in tokenized_line:
-				if not token in string.punctuation:
+				if not token in string.punctuation and not token in stoplist:
  					sentences.append(normalize_token(token))
 	return sentences
 
@@ -52,26 +52,21 @@ def normalize_text(text):
 # ПОЛУЧЕНИЕ КОНТРОЛЬНЫХ СУММ (ПО 10 СЛОВ)
 def algo_shingle(text):
 	sums = []
-	shingle = 10
-	length = len(text)
-	for i in range (0, length - shingle + 1):
-		cur = []
-		for j in range (i, i + shingle - 1):
-			cur += (text[j] + ' ').encode('utf-8')
-		cur += text[i + shingle - 1]
-		sent = ' '.join( [x for x in text[i:i+shingle]] ).encode('utf-8')
-		sums.append(binascii.crc32(sent))
+	shingle = 2
+	l = len(text)
+	for i in range(l - shingle + 1):
+		sums.append (binascii.crc32(' '.join( [x for x in text[i:i+shingle]] ).encode('utf-8')))
 	return sums
 
 
 # ИТОГ
 def percent(array1, array2):
 	common = 0
-	for i in range(1, len(array1)):
+	for i in range(len(array1)):
 		if array1[i] in array2:
 			common += 1
 	if len(array1) + len(array2) > 0:
-		overlap = (common * 2) / (len(array1) + len(array2)) * 100
+		overlap = (common * 200) / (len(array1) + len(array2))
 	else:
 		return 100
 	return overlap
@@ -79,6 +74,6 @@ def percent(array1, array2):
 lines_1 = normalize_text(lines_1)
 lines_2 = normalize_text(lines_2)
 
-# print(lines_1)
-# print(lines_2)
+# print ' '.join([w.encode('utf-8') for w in lines_1])
+# print ' '.join([w.encode('utf-8') for w in lines_2])
 print percent(algo_shingle(lines_1), algo_shingle(lines_2))
