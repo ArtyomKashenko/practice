@@ -74,6 +74,11 @@ def percent(array1, array2):
 lines_1 = normalize_text(lines_1)
 lines_2 = normalize_text(lines_2)
 
+<<<<<<< HEAD
 # print ' '.join([w.encode('utf-8') for w in lines_1])
 # print ' '.join([w.encode('utf-8') for w in lines_2])
+=======
+print ' '.join([w for w in lines_1])
+print ' '.join([w for w in lines_2])
+>>>>>>> efd3d1b41ce74ace0ff6687457ecec96e6206521
 print percent(algo_shingle(lines_1), algo_shingle(lines_2))
