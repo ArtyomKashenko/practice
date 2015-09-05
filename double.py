@@ -14,48 +14,24 @@ import binascii
 # СЧИТЫВАЕМ СПИСОК ПРЕДЛОГОВ И СОЮЗОВ
 forbidden_words = 'test_docs/stoplist.txt'
 forbid = open(forbidden_words,'r')
-stoplist = [line.strip().decode('utf-8') for line in forbid.readlines()]
+stoplist = forbid.readlines()
 forbid.close()
 
 
 # ДОКУМЕНТЫ ДЛЯ ПРОВЕРКИ
-file_1 = 'test_docs/source_1.txt'
-file_2 = 'test_docs/source_2.txt'
-text_1 = open(file_1,'r')
-text_2 = open(file_2,'r')
-lines_1 = text_1.readlines()
-lines_2 = text_2.readlines()
-text_1.close()
-text_2.close()
-
-
-# НОРМАЛИЗАЦИЯ ТОКЕНА
-def normalize_token(token):
-	try: 
-		gram_info = morph.parse(token)
-		return gram_info[0].normal_form
-	except:
-		return token
-
-
-# НОРМАЛИЗАЦИЯ ТЕКСТА
-def normalize_text(text):
-	sentences = []
-	tokenized_lines = map(tokenizer.tokenize, [line.decode('utf-8').strip() for line in text])
-	for tokenized_line in tokenized_lines: 
-		for token in tokenized_line:
-				if not token in string.punctuation and not token in stoplist:
- 					sentences.append(normalize_token(token))
-	return sentences
+file_1 = 'test_docs/source.vert'
+text = open(file_1, 'r')
+lines = text.readlines()
+text.close()
 
 
 # ПОЛУЧЕНИЕ КОНТРОЛЬНЫХ СУММ (ПО 10 СЛОВ)
 def algo_shingle(text):
 	sums = []
-	shingle = 2
+	shingle = 10
 	l = len(text)
 	for i in range(l - shingle + 1):
-		sums.append (binascii.crc32(' '.join( [x for x in text[i:i+shingle]] ).encode('utf-8')))
+		sums.append (binascii.crc32(' '.join( [x for x in text[i:i+shingle]] )))
 	return sums
 
 
@@ -71,14 +47,29 @@ def percent(array1, array2):
 		return 100
 	return overlap
 
-lines_1 = normalize_text(lines_1)
-lines_2 = normalize_text(lines_2)
 
-<<<<<<< HEAD
-# print ' '.join([w.encode('utf-8') for w in lines_1])
-# print ' '.join([w.encode('utf-8') for w in lines_2])
-=======
-print ' '.join([w for w in lines_1])
-print ' '.join([w for w in lines_2])
->>>>>>> efd3d1b41ce74ace0ff6687457ecec96e6206521
-print percent(algo_shingle(lines_1), algo_shingle(lines_2))
+# СОБСТВЕННО, ОБРАБОТКА КОРПУСА
+textid = []
+qwerty = []
+
+i = 0
+while i < len(lines):
+	if "<doc" in lines[i]:
+		buf = []
+		c = lines[i].split()[1].split('=')[1].strip('"')
+		textid.append(c)
+		i += 1
+		while not "</doc" in lines[i]:
+			if not "<" in lines[i] and not ">" in lines[i]:
+				s = (lines[i].split()[3]).split("-")[0]
+				if not s in string.punctuation:
+					if not s in stoplist:
+						buf.append(s)
+			i += 1
+		qwerty.append(algo_shingle(buf))
+	i += 1
+
+# ВЫВОД РЕЗУЛЬТАТОВ ПОПАРНОГО СРАВНЕНИЯ ТЕКСТОВ
+for j in range(0, len(textid) - 1):
+	for k in range(j + 1, len(textid)):
+		print textid[j] + " and " + textid[k] + " - " + str(percent(qwerty[j], qwerty[k])) + "%"
